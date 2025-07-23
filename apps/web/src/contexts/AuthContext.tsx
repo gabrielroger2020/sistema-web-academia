@@ -1,4 +1,5 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { api } from '@/lib/axios';
 
 interface User {
@@ -12,6 +13,7 @@ interface AuthContextData {
   user: User | null;
   isAuthenticated: boolean;
   signIn: (credentials: any) => Promise<void>;
+  signOut: () => void; // Adicionar signOut
 }
 
 interface AuthProviderProps {
@@ -22,23 +24,49 @@ const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const isAuthenticated = !!user;
 
-  async function signIn({ usuario, senha }: any) {
-      const response = await api.post('/sessions', {
-        usuario,
-        senha,
-      });
+    useEffect(() => {
+        const token = localStorage.getItem('sooro.token');
+        const userJson = localStorage.getItem('sooro.user');
 
-      const { user: userData, token } = response.data;
+        if (token && userJson) {
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            setUser(JSON.parse(userJson));
+        }
+        setLoading(false);
+    }, []);
 
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    async function signIn({ usuario, senha }: any) {
+        const response = await api.post('/sessions', { usuario, senha });
+        const { user: userData, token } = response.data;
 
-      setUser(userData);
-  }
+        localStorage.setItem('sooro.token', token);
+        localStorage.setItem('sooro.user', JSON.stringify(userData));
+
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        setUser(userData);
+        router.push('/dashboard');
+    }
+
+    function signOut() {
+
+        localStorage.removeItem('sooro.token');
+        localStorage.removeItem('sooro.user');
+
+        setUser(null);
+        delete api.defaults.headers.common['Authorization'];
+        router.push('/');
+    }
+
+    if (loading) {
+    return null; // ou um spinner de tela cheia
+    }
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, signIn }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import { errors } from 'celebrate';
 import './shared/infra/typeorm';
 import routes from './shared/infra/http/routes';
@@ -7,6 +8,7 @@ import routes from './shared/infra/http/routes';
 const app = express();
 const PORT = process.env.PORT || 3333;
 
+app.use(cors());
 app.use(express.json());
 app.use(routes);
 

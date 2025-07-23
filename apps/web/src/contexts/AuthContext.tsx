@@ -25,7 +25,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const isAuthenticated = !!user;
 
   async function signIn({ usuario, senha }: any) {
-    try {
       const response = await api.post('/sessions', {
         usuario,
         senha,
@@ -36,11 +35,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       setUser(userData);
-
-    } catch (error) {
-      console.error("Falha no login", error);
-      throw new Error('Usuário ou senha inválidos.');
-    }
   }
 
   return (

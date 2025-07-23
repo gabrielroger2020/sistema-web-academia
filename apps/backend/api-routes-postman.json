@@ -1,0 +1,380 @@
+{
+	"info": {
+		"_postman_id": "c1a2b3d4-e5f6-4a7b-8c9d-0f1e2d3c4b5a",
+		"name": "Teste Sooro - Backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Gerenciamento de Usuários (Público)",
+			"item": [
+				{
+					"name": "[POST] Criar Usuário - Administrador",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Admin Sooro\",\n    \"usuario\": \"admin\",\n    \"senha\": \"admin123\",\n    \"perfil\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/users",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Cria um novo usuário com perfil de Administrador."
+					},
+					"response": []
+				},
+				{
+					"name": "[POST] Criar Usuário - Professor",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Professor Carlos\",\n    \"usuario\": \"carlos.prof\",\n    \"senha\": \"prof123\",\n    \"perfil\": \"professor\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/users",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Cria um novo usuário com perfil de Professor."
+					},
+					"response": []
+				},
+				{
+					"name": "[POST] Criar Usuário - Aluno",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Aluno Teste\",\n    \"usuario\": \"aluno.teste\",\n    \"senha\": \"aluno123\",\n    \"perfil\": \"aluno\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/users",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Cria um novo usuário com perfil de Aluno."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Autenticação",
+			"item": [
+				{
+					"name": "[POST] Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Salva o token na variável de coleção",
+									"const jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    console.log('Token salvo na variável de coleção.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usuario\": \"admin\",\n    \"senha\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/sessions",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"sessions"
+							]
+						},
+						"description": "Realiza o login e salva o token JWT automaticamente na variável 'token' da coleção."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Gerenciamento de Usuários (Admin)",
+			"item": [
+				{
+					"name": "[GET] Listar Todos os Usuários",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/users",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[PATCH] Ativar ou Inativar Usuário",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"situacao\": \"inativo\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/<ID_DO_USUARIO_AQUI>/status",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"<ID_DO_USUARIO_AQUI>",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[DELETE] Deletar Usuário",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/users/<ID_DO_USUARIO_AQUI>/status",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"<ID_DO_USUARIO_AQUI>",
+								"status"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Gerenciamento de Avaliações",
+			"item": [
+				{
+					"name": "[POST] Criar Avaliação",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idUsuarioAluno\": \"<ID_DO_ALUNO_AQUI>\",\n    \"peso\": 85.5,\n    \"altura\": 1.79\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/evaluations",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"evaluations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[GET] Listar Todas as Avaliações (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/evaluations",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"evaluations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[GET] Listar Avaliações com Filtro",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/evaluations?alunoId=<ID_DO_ALUNO_AQUI>",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"evaluations"
+							],
+							"query": [
+								{
+									"key": "alunoId",
+									"value": "<ID_DO_ALUNO_AQUI>"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[PUT] Atualizar Avaliação",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"peso\": 87.0\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/evaluations/<ID_DA_AVALIACAO_AQUI>",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"evaluations",
+								"<ID_DA_AVALIACAO_AQUI>"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "[DELETE] Deletar Avaliação",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/evaluations/<ID_DA_AVALIACAO_AQUI>",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"evaluations",
+								"<ID_DA_AVALIACAO_AQUI>"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://localhost:3333"
+		},
+		{
+			"key": "token",
+			"value": ""
+		}
+	]
+}

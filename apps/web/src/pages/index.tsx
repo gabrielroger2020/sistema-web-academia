@@ -12,6 +12,8 @@ import {
 import {FormControl, FormErrorMessage, FormLabel} from '@chakra-ui/form-control'
 import { toaster } from "@/components/ui/toaster"
 import { useAuth } from '@/contexts/AuthContext';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 // Schema de validação com Zod
 const loginFormSchema = z.object({
@@ -23,6 +25,14 @@ type LoginFormInputs = z.infer<typeof loginFormSchema>;
 
 export default function LoginPage() {
   const { signIn } = useAuth();
+  const { isAuthenticated } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.push('/dashboard');
+        }
+    }, [isAuthenticated, router]);
 
   const {
     register,

@@ -12,7 +12,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <Flex direction="column" h="100vh">
-      {/* Header */}
         <Flex
         as="header"
         w="100%"
@@ -20,8 +19,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         h="20"
         align="center"
         borderBottomWidth="1px"
-        borderColor="gray.700"
+        borderColor="gray.200"
+        bgColor="gray.100"
         justify="space-between"
+        height="10vh"
         >
         <Heading size="md">Sooro IMC</Heading>
         <Menu.Root>
@@ -34,7 +35,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </Menu.Trigger>
             <Portal>
                 <Menu.Positioner>
-                    <Menu.Content>
+                    <Menu.Content >
                         <Menu.Item value="perfil">Perfil</Menu.Item>
                         <Menu.Item value="logout" onClick={signOut}>Sair</Menu.Item>
                     </Menu.Content>
@@ -43,26 +44,24 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </Menu.Root>
       </Flex>
 
-      <Flex w="100%" my="6" maxW={1480} mx="auto" px="6">
-        {/* Sidebar */}
-        <Box as="aside" w="64" mr="8">
-            <Stack align="stretch">
+      <Flex w="100%" maxW={1480} x="6" height="90vh">
+        <Box as="aside" w="64">
+            <Stack align="stretch" width={"100%"} height={"100%"} borderRightWidth={"1px"}>
                 <Link href="/dashboard" passHref>
-                    <Button as="a" variant="ghost" justifyContent="flex-start">Dashboard</Button>
+                    <Button as="a" variant="ghost" justifyContent="flex-start" width={"100%"}>Dashboard</Button>
                 </Link>
                 {user?.perfil === 'admin' && (
                     <Link href="/users" passHref>
-                        <Button as="a" variant="ghost" justifyContent="flex-start">Usuários</Button>
+                        <Button as="a" variant="ghost" justifyContent="flex-start" width={"100%"}>Usuários</Button>
                     </Link>
                 )}
                 <Link href="/evaluations" passHref>
-                    <Button as="a" variant="ghost" justifyContent="flex-start">Avaliações</Button>
+                    <Button as="a" variant="ghost" justifyContent="flex-start"  width={"100%"}>Avaliações</Button>
                 </Link>
             </Stack>
         </Box>
 
-        {/* Main Content */}
-        <Box flex="1">{children}</Box>
+        <Box flex="1" padding={6}>{children}</Box>
       </Flex>
     </Flex>
   );

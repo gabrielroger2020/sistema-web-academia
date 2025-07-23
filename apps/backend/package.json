@@ -18,12 +18,16 @@
   "homepage": "https://github.com/gabrielroger2020/sistema-web-academia#readme",
   "description": "",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "celebrate": "^15.0.3",
     "express": "^5.1.0",
     "reflect-metadata": "^0.2.2",
     "sqlite3": "^5.1.7",
-    "typeorm": "^0.3.25"
+    "typeorm": "^0.3.25",
+    "zod": "^4.0.5"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.3",
     "@types/node": "^24.1.0",
     "ts-node-dev": "^2.0.0",

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
 import { isAuthenticated } from '../middlewares/isAuthenticated';
+import { ensureAdminOrProfessor  } from '../middlewares/ensureAdminOrProfessor';
 import { EvaluationsController } from '../controllers/EvaluationsController';
 
 const evaluationsRouter = Router();
@@ -21,6 +22,7 @@ evaluationsRouter.get(
 
 evaluationsRouter.post(
   '/',
+  ensureAdminOrProfessor,
   celebrate({
     [Segments.BODY]: {
       idUsuarioAluno: Joi.string().uuid().required(),
@@ -29,6 +31,32 @@ evaluationsRouter.post(
     },
   }),
   evaluationsController.create,
+);
+
+evaluationsRouter.put(
+  '/:id',
+  ensureAdminOrProfessor,
+  celebrate({
+    [Segments.PARAMS]: {
+      id: Joi.string().uuid().required(),
+    },
+    [Segments.BODY]: {
+      peso: Joi.number().positive(),
+      altura: Joi.number().positive(),
+    },
+  }),
+  evaluationsController.update,
+);
+
+evaluationsRouter.delete(
+  '/:id',
+  ensureAdminOrProfessor,
+  celebrate({
+    [Segments.PARAMS]: {
+      id: Joi.string().uuid().required(),
+    },
+  }),
+  evaluationsController.delete,
 );
 
 export default evaluationsRouter;

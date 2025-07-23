@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { CreateEvaluationService } from '../../../../modules/evaluations/services/CreateEvaluationService';
 import { ListEvaluationsService } from '../../../../modules/evaluations/services/ListEvaluationsService';
+import { UpdateEvaluationService } from '../../../../modules/evaluations/services/UpdateEvaluationService';
+import { DeleteEvaluationService } from '../../../../modules/evaluations/services/DeleteEvaluationService';
 
 export class EvaluationsController {
   public async create(request: Request, response: Response): Promise<Response> {
@@ -35,5 +37,30 @@ export class EvaluationsController {
     });
 
     return response.json(evaluations);
+  }
+
+  public async update(request: Request, response: Response): Promise<Response> {
+    const { id: evaluationId } = request.params;
+    const { peso, altura } = request.body;
+    const requestingUser = request.user;
+
+    const updateEvaluation = new UpdateEvaluationService();
+    const evaluation = await updateEvaluation.execute({
+      evaluationId,
+      peso,
+      altura,
+      requestingUser,
+    });
+    return response.json(evaluation);
+  }
+
+  public async delete(request: Request, response: Response): Promise<Response> {
+    const { id: evaluationId } = request.params;
+    const requestingUser = request.user;
+    
+    const deleteEvaluation = new DeleteEvaluationService();
+    await deleteEvaluation.execute({ evaluationId, requestingUser });
+
+    return response.status(204).send();
   }
 }

@@ -1,4 +1,3 @@
-// src/modules/users/services/AuthenticateUserService.ts
 import { compare } from 'bcryptjs';
 import { sign, SignOptions  } from 'jsonwebtoken';
 import authConfig from '../../../config/auth';

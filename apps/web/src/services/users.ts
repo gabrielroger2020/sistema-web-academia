@@ -48,3 +48,7 @@ export async function updateUser({ userId, data }: UpdateUserData): Promise<User
     const response = await api.put(`/users/${userId}`, data);
     return response.data;
 }
+
+export async function deleteUser(userId: string): Promise<void> {
+    await api.delete(`/users/${userId}`);
+}

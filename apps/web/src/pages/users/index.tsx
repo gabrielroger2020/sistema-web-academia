@@ -14,11 +14,11 @@ import {
     CloseButton,
     useDisclosure,
     Switch,
-    IconButton
+    IconButton,
 } from '@chakra-ui/react';
 import { DashboardLayout } from '@/components/layout/Dashboard';
 import { useAuth } from '@/contexts/AuthContext';
-import { getUsers, User, createUser, CreateUserData, updateUserStatus, updateUser } from '@/services/users';
+import { getUsers, User, createUser, CreateUserData, updateUserStatus, updateUser, deleteUser } from '@/services/users';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import { UserForm } from '@/components/forms/UserForm';
 import { toaster } from '@/components/ui/toaster';
@@ -28,6 +28,7 @@ export default function UserManagementPage() {
     const router = useRouter();
     const queryClient = useQueryClient();
     const { open, onOpen, onClose } = useDisclosure();
+    const { open: alertOpen, onOpen: onAlertOpen, onClose: onAlertClose } = useDisclosure();
 
     const { data: users, isLoading, isError } = useQuery({
         queryKey: ['users'],
@@ -35,6 +36,7 @@ export default function UserManagementPage() {
     });
 
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
     const { mutate: handleCreateUser, isPending: isCreatingUser } = useMutation({
         mutationFn: createUser,
@@ -44,10 +46,37 @@ export default function UserManagementPage() {
             onClose();
         },
         onError: (error: any) => {
-            console.log(error);
             toaster.create({ title: 'Erro ao criar usuário.', description: error.response?.data?.error || 'Ocorreu um erro.', type: 'error' });
         },
     });
+
+    const { mutate: handleDeleteUser, isPending: isDeletingUser } = useMutation({
+        mutationFn: deleteUser,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            toaster.create({ title: 'Usuário excluído com sucesso!', type: 'success' });
+            onAlertClose();
+        },
+        onError: (error: any) => {
+            toaster.create({
+                title: 'Erro ao excluir usuário.',
+                description: error.response?.data?.error || 'Pode haver avaliações vinculadas a ele.',
+                type: 'error',
+            });
+            onAlertClose();
+        },
+    });
+
+    function handleOpenDeleteAlert(userId: string) {
+        setUserToDelete(userId);
+        onAlertOpen();
+    }
+
+    function confirmDelete() {
+        if (userToDelete) {
+            handleDeleteUser(userToDelete);
+        }
+    }
 
     const { mutate: handleUpdateStatus } = useMutation({
         mutationFn: updateUserStatus,
@@ -73,19 +102,19 @@ export default function UserManagementPage() {
     });
 
     function onSubmitForm(data: Partial<CreateUserData>) {
-        if(selectedUser){
+        if (selectedUser) {
             handleUpdateUser({ userId: selectedUser.id, data });
-        }else{
+        } else {
             handleCreateUser(data as CreateUserData);
         }
     }
 
-    function handleOpenEditModal(userToEdit: User){
+    function handleOpenEditModal(userToEdit: User) {
         setSelectedUser(userToEdit);
         onOpen();
     }
 
-    function handleCloseModal(){
+    function handleCloseModal() {
         onClose();
         setSelectedUser(null);
     }
@@ -151,8 +180,11 @@ export default function UserManagementPage() {
                                     </Switch.Root>
                                 </Table.Cell>
                                 <Table.Cell>
-                                    <IconButton aria-label='Editar usuário' size="sm" onClick={() => handleOpenEditModal(user)}>
+                                    <IconButton aria-label='Editar usuário' size="sm" onClick={() => handleOpenEditModal(user)} mr={2}>
                                         <FiEdit></FiEdit>
+                                    </IconButton>
+                                    <IconButton aria-label='Excluir usuário' size="sm" onClick={() => handleOpenDeleteAlert(user.id)}>
+                                        <FiTrash2></FiTrash2>
                                     </IconButton>
                                 </Table.Cell>
                             </Table.Row>
@@ -173,6 +205,30 @@ export default function UserManagementPage() {
                         <Dialog.CloseTrigger asChild>
                             <CloseButton onClick={onClose} size="sm" />
                         </Dialog.CloseTrigger>
+                    </Dialog.Content>
+                </Dialog.Positioner>
+            </Dialog.Root>
+            <Dialog.Root open={alertOpen} size={'md'}>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                    <Dialog.Content>
+                        <Dialog.Header>
+                            <Dialog.Title>Excluir Usuário</Dialog.Title>
+                        </Dialog.Header>
+                        <Dialog.Body>
+                            Você tem certeza? Esta ação não pode ser desfeita.
+                        </Dialog.Body>
+                        <Dialog.CloseTrigger asChild>
+                            <CloseButton onClick={onAlertClose} size="sm" />
+                        </Dialog.CloseTrigger>
+                        <Dialog.Footer>
+                            <Button onClick={onAlertClose}>
+                                Cancelar
+                            </Button>
+                            <Button onClick={confirmDelete} bgColor="red">
+                                Excluir
+                            </Button>
+                        </Dialog.Footer>
                     </Dialog.Content>
                 </Dialog.Positioner>
             </Dialog.Root>

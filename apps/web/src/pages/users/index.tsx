@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { DashboardLayout } from '@/components/layout/Dashboard';
 import { useAuth } from '@/contexts/AuthContext';
-import { getUsers, User, createUser, CreateUserData, updateUserStatus } from '@/services/users';
+import { getUsers, User, createUser, CreateUserData, updateUserStatus, updateUser } from '@/services/users';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import { UserForm } from '@/components/forms/UserForm';
 import { toaster } from '@/components/ui/toaster';
@@ -34,6 +34,8 @@ export default function UserManagementPage() {
         queryFn: getUsers
     });
 
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
     const { mutate: handleCreateUser, isPending: isCreatingUser } = useMutation({
         mutationFn: createUser,
         onSuccess: () => {
@@ -42,6 +44,7 @@ export default function UserManagementPage() {
             onClose();
         },
         onError: (error: any) => {
+            console.log(error);
             toaster.create({ title: 'Erro ao criar usuário.', description: error.response?.data?.error || 'Ocorreu um erro.', type: 'error' });
         },
     });
@@ -56,6 +59,36 @@ export default function UserManagementPage() {
             toaster.create({ title: 'Erro ao atualizar status.', type: 'error' });
         },
     });
+
+    const { mutate: handleUpdateUser, isPending: isUpdatingUser } = useMutation({
+        mutationFn: updateUser,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            toaster.create({ title: 'Usuário atualizado com sucesso!', type: 'success' });
+            onClose();
+        },
+        onError: (error: any) => {
+            toaster.create({ title: 'Erro ao criar usuário.', description: error.response?.data?.error || 'Ocorreu um erro.', type: 'error' });
+        },
+    });
+
+    function onSubmitForm(data: Partial<CreateUserData>) {
+        if(selectedUser){
+            handleUpdateUser({ userId: selectedUser.id, data });
+        }else{
+            handleCreateUser(data as CreateUserData);
+        }
+    }
+
+    function handleOpenEditModal(userToEdit: User){
+        setSelectedUser(userToEdit);
+        onOpen();
+    }
+
+    function handleCloseModal(){
+        onClose();
+        setSelectedUser(null);
+    }
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -117,7 +150,11 @@ export default function UserManagementPage() {
                                         </Switch.Control>
                                     </Switch.Root>
                                 </Table.Cell>
-                                <Table.Cell></Table.Cell>
+                                <Table.Cell>
+                                    <IconButton aria-label='Editar usuário' size="sm" onClick={() => handleOpenEditModal(user)}>
+                                        <FiEdit></FiEdit>
+                                    </IconButton>
+                                </Table.Cell>
                             </Table.Row>
                         ))}
                     </Table.Body>
@@ -128,10 +165,10 @@ export default function UserManagementPage() {
                 <Dialog.Positioner>
                     <Dialog.Content>
                         <Dialog.Header>
-                            <Dialog.Title>Cadastrar Usuário</Dialog.Title>
+                            <Dialog.Title>{selectedUser ? 'Editar Usuário' : 'Cadastrar Usuário'}</Dialog.Title>
                         </Dialog.Header>
                         <Dialog.Body>
-                            <UserForm onSubmit={handleCreateUser} isSubmitting={isCreatingUser}></UserForm>
+                            <UserForm onSubmit={onSubmitForm} isSubmitting={isCreatingUser || isUpdatingUser} defaultValues={selectedUser ?? undefined} isEditMode={!!selectedUser}></UserForm>
                         </Dialog.Body>
                         <Dialog.CloseTrigger asChild>
                             <CloseButton onClick={onClose} size="sm" />

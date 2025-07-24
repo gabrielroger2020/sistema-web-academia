@@ -3,10 +3,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button, Input, Select, Stack, Portal } from '@chakra-ui/react';
 import { FormControl, FormErrorMessage, FormLabel } from '@chakra-ui/form-control'
-import { CreateUserData } from '@/services/users';
+import { CreateUserData, UpdateUserData, User } from '@/services/users';
 import { createListCollection } from '@chakra-ui/react';
 
-const userFormSchema = z.object({
+const createUserSchema = z.object({
     nome: z.string().min(3, 'O nome deve ter no mínimo 3 caracteres.'),
     usuario: z.string().min(3, 'O usuário deve ter no mínimo 3 caracteres.'),
     senha: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres.'),
@@ -15,9 +15,20 @@ const userFormSchema = z.object({
     }),
 });
 
+const updateUserSchema = z.object({
+  nome: z.string().min(3, 'O nome deve ter no mínimo 3 caracteres.'),
+  usuario: z.string().min(3, 'O usuário deve ter no mínimo 3 caracteres.'),
+  senha: z.string().min(6, 'A senha deve ter 6+ caracteres.').or(z.literal('')).optional(),
+  perfil: z.enum(['admin', 'professor', 'aluno'], {
+    error: 'Selecione um perfil.',
+  }),
+});
+
 interface UserFormProps {
-    onSubmit: (data: CreateUserData) => void;
+    onSubmit: (data: Partial<CreateUserData>) => void;
     isSubmitting: boolean;
+    defaultValues?: Partial<User>;
+    isEditMode: boolean;
 }
 
 const profiles = createListCollection({
@@ -28,9 +39,16 @@ const profiles = createListCollection({
     ],
 })
 
-export function UserForm({ onSubmit, isSubmitting }: UserFormProps) {
-    const { register, control, handleSubmit, formState: { errors } } = useForm<CreateUserData>({
-        resolver: zodResolver(userFormSchema),
+export function UserForm({ onSubmit, isSubmitting, defaultValues, isEditMode }: UserFormProps) {
+    const currentSchema = isEditMode ? updateUserSchema : createUserSchema;
+    const { register, control, handleSubmit, formState: { errors } } = useForm({
+        resolver: zodResolver(currentSchema),
+        defaultValues: {
+            nome: defaultValues?.nome || '',
+            usuario: defaultValues?.usuario || '',
+            perfil: defaultValues?.perfil,
+            senha: ''
+        }
     });
 
     return (
@@ -47,7 +65,7 @@ export function UserForm({ onSubmit, isSubmitting }: UserFormProps) {
             </FormControl>
             <FormControl isInvalid={!!errors.senha}>
                 <FormLabel htmlFor="senha">Senha</FormLabel>
-                <Input id="senha" type="password" {...register('senha')} />
+                <Input id="senha" type="password" placeholder="Deixe em branco para não alterar" {...register('senha')} />
                 <FormErrorMessage>{errors.senha?.message}</FormErrorMessage>
             </FormControl>
             <FormControl isInvalid={!!errors.perfil}>

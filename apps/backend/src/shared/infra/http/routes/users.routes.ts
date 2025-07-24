@@ -37,6 +37,25 @@ usersRouter.patch(
   usersController.updateStatus,
 );
 
+// Editar um usuário
+usersRouter.put(
+  '/:id',
+  celebrate({
+    [Segments.PARAMS]: {
+      id: Joi.string().uuid().required(),
+    },
+    [Segments.BODY]: {
+      nome: Joi.string(),
+      usuario: Joi.string(),
+      perfil: Joi.string().valid('admin', 'professor', 'aluno'),
+      senha: Joi.string().min(6).optional(), // Senha é opcional na edição
+    },
+  }),
+  isAuthenticated,
+  ensureAdmin,
+  usersController.update,
+);
+
 // Deletar um usuário
 usersRouter.delete(
   '/:id',

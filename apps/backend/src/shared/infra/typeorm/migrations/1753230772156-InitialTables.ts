@@ -1,4 +1,6 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
+import { v4 as uuidV4 } from 'uuid';
+import { hash } from 'bcryptjs';
 
 export class InitialTables1753230772156 implements MigrationInterface {
     name = 'InitialTables1753230772156'
@@ -15,6 +17,13 @@ export class InitialTables1753230772156 implements MigrationInterface {
         await queryRunner.query(`INSERT INTO "temporary_avaliacao_imc"("id", "altura", "peso", "imc", "classificacao", "id_usuario_avaliacao", "id_usuario_aluno", "dt_inclusao") SELECT "id", "altura", "peso", "imc", "classificacao", "id_usuario_avaliacao", "id_usuario_aluno", "dt_inclusao" FROM "avaliacao_imc"`);
         await queryRunner.query(`DROP TABLE "avaliacao_imc"`);
         await queryRunner.query(`ALTER TABLE "temporary_avaliacao_imc" RENAME TO "avaliacao_imc"`);
+        
+        //Criando o primeiro usuário admin do sistema
+        const adminId = uuidV4();
+        const passwordHash = await hash('admin123', 8);
+        await queryRunner.query(
+            `INSERT INTO usuario (id, nome, usuario, senha, perfil) VALUES ('${adminId}', 'Administrador', 'admin', '${passwordHash}', 'admin')`
+        );
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

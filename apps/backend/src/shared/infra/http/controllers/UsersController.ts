@@ -39,7 +39,10 @@ export class UsersController {
 
   public async list(request: Request, response: Response): Promise<Response> {
     const listUsers = new ListUsersService();
-    const users = await listUsers.execute();
+    let users = await listUsers.execute();
+    if (request.user.perfil === 'professor') {
+      users = users.filter(user => user.perfil === 'aluno');
+    }
     return response.json(users);
   }
 

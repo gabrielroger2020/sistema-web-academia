@@ -122,12 +122,12 @@ export default function UserManagementPage() {
     useEffect(() => {
         if (!isAuthenticated) {
             router.push('/');
-        } else if (user?.perfil !== 'admin') {
+        } else if (user?.perfil !== 'admin' && user?.perfil !== 'professor') {
             router.push('/dashboard');
         }
     }, [isAuthenticated, user, router]);
 
-    if (!isAuthenticated || user?.perfil !== 'admin') {
+    if (!isAuthenticated || user?.perfil !== 'admin' && user?.perfil !== 'professor') {
         return <Spinner />;
     }
 
@@ -162,15 +162,15 @@ export default function UserManagementPage() {
                                 <Table.Cell colSpan={5} textAlign="center"><Text color="red.500">Erro ao carregar usuários.</Text></Table.Cell>
                             </Table.Row>
                         )}
-                        {users?.map((user) => (
-                            <Table.Row key={user.id}>
-                                <Table.Cell>{user.nome}</Table.Cell>
-                                <Table.Cell>{user.usuario}</Table.Cell>
-                                <Table.Cell>{user.perfil}</Table.Cell>
+                        {users?.map((us) => (
+                            <Table.Row key={us.id}>
+                                <Table.Cell>{us.nome}</Table.Cell>
+                                <Table.Cell>{us.usuario}</Table.Cell>
+                                <Table.Cell>{us.perfil}</Table.Cell>
                                 <Table.Cell>
-                                    <Switch.Root checked={user.situacao === "ativo"} onChange={(e) =>
+                                    <Switch.Root checked={us.situacao === "ativo"} onChange={(e) =>
                                         handleUpdateStatus({
-                                            userId: user.id,
+                                            userId: us.id,
                                             status: (e.target as HTMLInputElement).checked ? "ativo" : "inativo"
                                         })
                                     }>
@@ -180,12 +180,13 @@ export default function UserManagementPage() {
                                     </Switch.Root>
                                 </Table.Cell>
                                 <Table.Cell>
-                                    <IconButton aria-label='Editar usuário' size="sm" onClick={() => handleOpenEditModal(user)} mr={2}>
+                                    {user.perfil != "aluno" ? <IconButton aria-label='Editar usuário' size="sm" onClick={() => handleOpenEditModal(us)} mr={2}>
                                         <FiEdit></FiEdit>
-                                    </IconButton>
-                                    <IconButton aria-label='Excluir usuário' size="sm" onClick={() => handleOpenDeleteAlert(user.id)}>
+                                    </IconButton> : null}
+                                     {user.perfil == "admin" ? <IconButton aria-label='Excluir usuário' size="sm" onClick={() => handleOpenDeleteAlert(us.id)}>
                                         <FiTrash2></FiTrash2>
-                                    </IconButton>
+                                    </IconButton> : null}
+                                    
                                 </Table.Cell>
                             </Table.Row>
                         ))}
@@ -200,7 +201,7 @@ export default function UserManagementPage() {
                             <Dialog.Title>{selectedUser ? 'Editar Usuário' : 'Cadastrar Usuário'}</Dialog.Title>
                         </Dialog.Header>
                         <Dialog.Body>
-                            <UserForm onSubmit={onSubmitForm} isSubmitting={isCreatingUser || isUpdatingUser} defaultValues={selectedUser ?? undefined} isEditMode={!!selectedUser}></UserForm>
+                            <UserForm onSubmit={onSubmitForm} isSubmitting={isCreatingUser || isUpdatingUser} defaultValues={selectedUser ?? undefined} isEditMode={!!selectedUser} perfil={user.perfil}></UserForm>
                         </Dialog.Body>
                         <Dialog.CloseTrigger asChild>
                             <CloseButton onClick={handleCloseModal} size="sm" />

@@ -5,6 +5,7 @@ import { Button, Input, Select, Stack, Portal } from '@chakra-ui/react';
 import { FormControl, FormErrorMessage, FormLabel } from '@chakra-ui/form-control'
 import { CreateUserData, UpdateUserData, User } from '@/services/users';
 import { createListCollection } from '@chakra-ui/react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const createUserSchema = z.object({
     nome: z.string().min(3, 'O nome deve ter no mínimo 3 caracteres.'),
@@ -29,6 +30,7 @@ interface UserFormProps {
     isSubmitting: boolean;
     defaultValues?: Partial<User>;
     isEditMode: boolean;
+    perfil?: string;
 }
 
 const profiles = createListCollection({
@@ -39,14 +41,14 @@ const profiles = createListCollection({
     ],
 })
 
-export function UserForm({ onSubmit, isSubmitting, defaultValues, isEditMode }: UserFormProps) {
+export function UserForm({ onSubmit, isSubmitting, defaultValues, isEditMode, perfil }: UserFormProps) {
     const currentSchema = isEditMode ? updateUserSchema : createUserSchema;
     const { register, control, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(currentSchema),
         defaultValues: {
             nome: defaultValues?.nome || '',
             usuario: defaultValues?.usuario || '',
-            perfil: defaultValues?.perfil,
+            perfil: (perfil == 'professor') ? 'aluno' : defaultValues?.perfil ,
             senha: ''
         }
     });
@@ -74,7 +76,7 @@ export function UserForm({ onSubmit, isSubmitting, defaultValues, isEditMode }: 
                     name="perfil"
                     control={control}
                     render={({ field }) => (
-                        <Select.Root collection={profiles} id="perfil" onValueChange={(details) => field.onChange(details.value[0])} value={field.value ? [field.value] : []} onBlur={field.onBlur} ref={field.ref}>
+                        <Select.Root collection={profiles} id="perfil" onValueChange={(details) => field.onChange(details.value[0])} value={field.value ? [field.value] : []} onBlur={field.onBlur} ref={field.ref} readOnly={perfil == 'professor'}>
                             <Select.HiddenSelect />
                             <Select.Control>
                                 <Select.Trigger>

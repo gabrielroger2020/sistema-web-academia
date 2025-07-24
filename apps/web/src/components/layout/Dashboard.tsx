@@ -36,7 +36,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <Portal>
             <Menu.Positioner>
               <Menu.Content >
-                <Menu.Item value="perfil">Perfil</Menu.Item>
                 <Menu.Item value="logout" onClick={signOut}>Sair</Menu.Item>
               </Menu.Content>
             </Menu.Positioner>
@@ -50,7 +49,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <Link href="/dashboard" passHref>
               <Button as="a" variant="ghost" justifyContent="flex-start" width={"100%"}>Dashboard</Button>
             </Link>
-            {user?.perfil === 'admin' && (
+            {(user?.perfil === 'admin' || user?.perfil === 'professor') && (
               <Link href="/users" passHref>
                 <Button as="a" variant="ghost" justifyContent="flex-start" width={"100%"}>Usuários</Button>
               </Link>

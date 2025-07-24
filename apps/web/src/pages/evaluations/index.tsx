@@ -152,12 +152,10 @@ export default function EvaluationsPage() {
     useEffect(() => {
         if (!isAuthenticated) {
             router.push('/');
-        } else if (user?.perfil !== 'admin') {
-            router.push('/dashboard');
         }
     }, [isAuthenticated, user, router]);
 
-    if (!isAuthenticated || user?.perfil !== 'admin') {
+    if (!isAuthenticated) {
         return <Spinner />;
     }
 

@@ -3,6 +3,7 @@ import { celebrate, Joi, Segments } from 'celebrate';
 import { UsersController } from '../controllers/UsersController';
 import { isAuthenticated } from '../middlewares/isAuthenticated';
 import { ensureAdmin } from '../middlewares/ensureAdmin';
+import { ensureAdminOrProfessor } from '../middlewares/ensureAdminOrProfessor';
 
 const usersRouter = Router();
 const usersController = new UsersController();
@@ -18,12 +19,13 @@ usersRouter.post(
     },
   }),
   usersController.create,
+  ensureAdminOrProfessor
 );
 
 // --- ROTAS PROTEGIDAS PARA ADMIN ---
 
 // Listar todos os usuários
-usersRouter.get('/', isAuthenticated, ensureAdmin, usersController.list);
+usersRouter.get('/', isAuthenticated, ensureAdminOrProfessor, usersController.list);
 
 // Ativar/Inativar um usuário
 usersRouter.patch(
@@ -33,7 +35,7 @@ usersRouter.patch(
     [Segments.BODY]: { situacao: Joi.string().valid('ativo', 'inativo').required() },
   }),
   isAuthenticated,
-  ensureAdmin,
+  ensureAdminOrProfessor,
   usersController.updateStatus,
 );
 
@@ -52,7 +54,7 @@ usersRouter.put(
     },
   }),
   isAuthenticated,
-  ensureAdmin,
+  ensureAdminOrProfessor,
   usersController.update,
 );
 

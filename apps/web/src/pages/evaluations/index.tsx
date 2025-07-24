@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -14,19 +14,53 @@ import {
     useDisclosure,
     Dialog,
     CloseButton,
+    InputGroup,
+    Input,
+    Icon,
+    Group,
+    createListCollection,
+    Select,
+    Portal,
+    IconButton
 } from '@chakra-ui/react';
+import { FiSearch, FiX } from 'react-icons/fi';
 import { DashboardLayout } from '@/components/layout/Dashboard';
 import { useAuth } from '@/contexts/AuthContext';
 import { getEvaluations, Evaluation, createEvaluation } from '@/services/evaluations';
 import { toaster } from '@/components/ui/toaster';
 import { EvaluationForm } from '@/components/forms/EvaluationForm';
+import { getUsers } from '@/services/users';
 
 export default function EvaluationsPage() {
     const { user, isAuthenticated } = useAuth();
     const router = useRouter();
+
+    const [filtroAluno, setFiltroAluno] = useState('');
+    const [filtroProfessor, setFiltroProfessor] = useState('');
+
+    const { data: allUsers, isLoading: isLoadingUsers } = useQuery({
+        queryKey: ['allUsersForFilters'],
+        queryFn: getUsers,
+    });
+
+    const { studentsCollection, professorsCollection } = useMemo(() => {
+        const students = allUsers
+            ?.filter((u) => u.perfil === 'aluno')
+            .map((s) => ({ label: s.nome, value: s.id })) || [];
+
+        const professors = allUsers
+            ?.filter((u) => u.perfil === 'professor')
+            .map((p) => ({ label: p.nome, value: p.id })) || [];
+
+        return {
+            studentsCollection: createListCollection({ items: students }),
+            professorsCollection: createListCollection({ items: professors }),
+        };
+    }, [allUsers]);
+
     const { data: evaluations, isLoading, isError } = useQuery({
-        queryKey: ['evaluations'],
-        queryFn: () => getEvaluations()
+        queryKey: ['evaluations', filtroAluno, filtroProfessor],
+        queryFn: () => getEvaluations({ alunoId: filtroAluno, professorId: filtroProfessor })
     });
 
     const { open, onOpen, onClose } = useDisclosure();
@@ -70,6 +104,78 @@ export default function EvaluationsPage() {
                     <Button onClick={onOpen}>Nova Avaliação</Button>
                 )}
             </Flex>
+
+            {user?.perfil === 'admin' && (
+                <Flex mb={8} gap={4}>
+                    <Select.Root
+                        collection={studentsCollection}
+                        width="100%"
+                        onValueChange={(details) => setFiltroAluno(details.value[0] || '')}
+                        disabled={isLoadingUsers}
+                    >
+                        <Select.Control>
+                            <Select.Trigger>
+                                <Select.ValueText placeholder="Filtrar por aluno..." />
+                            </Select.Trigger>
+                        </Select.Control>
+                        <Portal>
+                            <Select.Positioner>
+                                <Select.Content zIndex={"max"}>
+                                    {studentsCollection.items.map((student) => (
+                                        <Select.Item key={student.value} item={student}>
+                                            <Select.ItemText>{student.label}</Select.ItemText>
+                                            <Select.ItemIndicator />
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Positioner>
+                        </Portal>
+                    </Select.Root>
+
+                    {filtroAluno && (
+                        <IconButton
+                            aria-label="Limpar filtro de aluno"
+                            onClick={() => setFiltroAluno('')}
+                        >
+                            <FiX />
+                        </IconButton>
+                    )}
+
+                    <Select.Root
+                        collection={professorsCollection}
+                        width="100%"
+                        onValueChange={(details) => setFiltroProfessor(details.value[0] || '')}
+                        disabled={isLoadingUsers}
+                    >
+                        <Select.Control>
+                            <Select.Trigger>
+                                <Select.ValueText placeholder="Filtrar por professor..." />
+                            </Select.Trigger>
+                        </Select.Control>
+                        <Portal>
+                            <Select.Positioner>
+                                <Select.Content z-index={"max"}>
+                                    {professorsCollection.items.map((prof) => (
+                                        <Select.Item key={prof.value} item={prof}>
+                                            <Select.ItemText>{prof.label}</Select.ItemText>
+                                            <Select.ItemIndicator />
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Positioner>
+                        </Portal>
+                    </Select.Root>
+
+                    {filtroProfessor && (
+                        <IconButton
+                            aria-label="Limpar filtro de professor"
+                            onClick={() => setFiltroProfessor('')}
+                        >
+                            <FiX />
+                        </IconButton>
+                    )}
+                </Flex>
+            )}
 
             <Box overflowX="auto">
                 <Table.Root variant="line" colorScheme="whiteAlpha">

@@ -18,7 +18,16 @@ export interface Evaluation {
 }
 
 export async function getEvaluations(params?: { alunoId?: string, professorId?: string }): Promise<Evaluation[]> {
-    const response = await api.get('/evaluations', { params });
+    const requestParams: { [key: string]: string } = {};
+
+    if (params?.alunoId) {
+        requestParams.alunoId = params.alunoId;
+    }
+    if (params?.professorId) {
+        requestParams.professorId = params.professorId;
+    }
+    
+    const response = await api.get('/evaluations', { params: requestParams });
     return response.data;
 }
 

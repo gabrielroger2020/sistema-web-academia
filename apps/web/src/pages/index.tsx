@@ -1,4 +1,3 @@
-// src/pages/index.tsx
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +8,7 @@ import {
   Input,
   Stack
 } from '@chakra-ui/react';
-import {FormControl, FormErrorMessage, FormLabel} from '@chakra-ui/form-control'
+import { FormControl, FormErrorMessage, FormLabel } from '@chakra-ui/form-control'
 import { toaster } from "@/components/ui/toaster"
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
@@ -26,13 +25,13 @@ type LoginFormInputs = z.infer<typeof loginFormSchema>;
 export default function LoginPage() {
   const { signIn } = useAuth();
   const { isAuthenticated } = useAuth();
-    const router = useRouter();
+  const router = useRouter();
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            router.push('/dashboard');
-        }
-    }, [isAuthenticated, router]);
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
 
   const {
     register,
@@ -53,7 +52,7 @@ export default function LoginPage() {
     } catch (error: any) {
       toaster.create({
         title: 'Erro no login.',
-        description: error.response?.data?.message || 'Usuário ou senha inválidos.',
+        description: error.response?.data?.error || 'Usuário ou senha inválidos.',
         type: 'error',
         duration: 5000,
       });

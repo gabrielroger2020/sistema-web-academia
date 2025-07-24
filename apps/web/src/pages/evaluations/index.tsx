@@ -23,10 +23,10 @@ import {
     Portal,
     IconButton
 } from '@chakra-ui/react';
-import { FiSearch, FiX } from 'react-icons/fi';
+import { FiEdit, FiSearch, FiTrash2, FiX } from 'react-icons/fi';
 import { DashboardLayout } from '@/components/layout/Dashboard';
 import { useAuth } from '@/contexts/AuthContext';
-import { getEvaluations, Evaluation, createEvaluation } from '@/services/evaluations';
+import { getEvaluations, Evaluation, createEvaluation, deleteEvaluation, updateEvaluation, CreateEvaluationData } from '@/services/evaluations';
 import { toaster } from '@/components/ui/toaster';
 import { EvaluationForm } from '@/components/forms/EvaluationForm';
 import { getUsers } from '@/services/users';
@@ -38,10 +38,16 @@ export default function EvaluationsPage() {
     const [filtroAluno, setFiltroAluno] = useState('');
     const [filtroProfessor, setFiltroProfessor] = useState('');
 
+    const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | null>(null);
+
     const { data: allUsers, isLoading: isLoadingUsers } = useQuery({
         queryKey: ['allUsersForFilters'],
         queryFn: getUsers,
     });
+
+    const { open, onOpen, onClose } = useDisclosure();
+    const { open: isAlertOpen, onOpen: onAlertOpen, onClose: onAlertClose } = useDisclosure();
+    const queryClient = useQueryClient();
 
     const { studentsCollection, professorsCollection } = useMemo(() => {
         const students = allUsers
@@ -63,9 +69,6 @@ export default function EvaluationsPage() {
         queryFn: () => getEvaluations({ alunoId: filtroAluno, professorId: filtroProfessor })
     });
 
-    const { open, onOpen, onClose } = useDisclosure();
-    const queryClient = useQueryClient();
-
     const { mutate: handleCreateEvaluation, isPending: isCreating } = useMutation({
         mutationFn: createEvaluation,
         onSuccess: () => {
@@ -81,6 +84,70 @@ export default function EvaluationsPage() {
             });
         },
     });
+
+    const { mutate: handleDeleteEvaluation, isPending: isDeleting } = useMutation({
+        mutationFn: deleteEvaluation,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['evaluations'] });
+            toaster.create({ title: 'Avaliação excluída com sucesso!', type: 'success' });
+            onAlertClose();
+        },
+        onError: (error: any) => {
+            toaster.create({
+                title: 'Erro ao deletar avaliação.',
+                description: error.response?.data?.message || 'Verifique os dados e tente novamente.',
+                type: 'error',
+            });
+        }
+    });
+
+    const { mutate: handleUpdateEvaluation, isPending: isUpdating } = useMutation({
+        mutationFn: updateEvaluation,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['evaluations'] });
+            toaster.create({ title: 'Avaliação atualizada com sucesso!', type: 'success' });
+            handleCloseModal();
+        },
+        onError: (error: any) => {
+            toaster.create({
+                title: 'Erro ao editar avaliação.',
+                description: error.response?.data?.message || 'Verifique os dados e tente novamente.',
+                type: 'error',
+            });
+        }
+    });
+
+    function onSubmitForm(data: CreateEvaluationData) {
+        if (selectedEvaluation) {
+            handleUpdateEvaluation({
+                evaluationId: selectedEvaluation.id,
+                data: { peso: data.peso, altura: data.altura }
+            });
+        } else {
+            handleCreateEvaluation(data);
+        }
+    }
+
+    function handleOpenEditModal(evaluation: Evaluation) {
+        setSelectedEvaluation(evaluation);
+        onOpen();
+    }
+
+    function handleCloseModal() {
+        setSelectedEvaluation(null);
+        onClose();
+    }
+
+    function handleCloseAlert() {
+        setSelectedEvaluation(null);
+        onAlertClose();
+    }
+
+    function confirmDelete() {
+        if (selectedEvaluation) {
+            handleDeleteEvaluation(selectedEvaluation.id);
+        }
+    }
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -211,6 +278,31 @@ export default function EvaluationsPage() {
                                 <Table.Cell>{evaluation.imc.toFixed(2)}</Table.Cell>
                                 <Table.Cell><Badge>{evaluation.classificacao}</Badge></Table.Cell>
                                 <Table.Cell>{new Date(evaluation.dtInclusao).toLocaleDateString()}</Table.Cell>
+                                <Table.Cell>
+                                    {(user?.perfil === 'admin' || user?.id === evaluation.avaliador.id) && (
+                                        <>
+                                            <IconButton
+                                                aria-label="Editar avaliação"
+                                                size="sm"
+                                                onClick={() => handleOpenEditModal(evaluation)}
+                                                mr={2}
+                                            >
+                                                <FiEdit />
+                                            </IconButton>
+                                            <IconButton
+                                                aria-label="Excluir avaliação"
+                                                size="sm"
+                                                onClick={() => {
+                                                    setSelectedEvaluation(evaluation);
+                                                    onAlertOpen();
+                                                }}
+                                                mr={2}
+                                            >
+                                                <FiTrash2 />
+                                            </IconButton>
+                                        </>
+                                    )}
+                                </Table.Cell>
                             </Table.Row>
                         ))}
                     </Table.Body>
@@ -221,14 +313,38 @@ export default function EvaluationsPage() {
                 <Dialog.Positioner>
                     <Dialog.Content>
                         <Dialog.Header>
-                            <Dialog.Title>Cadastrar Avaliação</Dialog.Title>
+                            <Dialog.Title>{selectedEvaluation ? 'Editar Avaliação' : 'Cadastrar Avaliação'}</Dialog.Title>
                         </Dialog.Header>
                         <Dialog.Body>
-                            <EvaluationForm onSubmit={handleCreateEvaluation} isSubmitting={isCreating}></EvaluationForm>
+                            <EvaluationForm onSubmit={onSubmitForm} isSubmitting={isCreating || isUpdating} defaultValues={selectedEvaluation ?? undefined} isEditMode={!!selectedEvaluation}></EvaluationForm>
                         </Dialog.Body>
                         <Dialog.CloseTrigger asChild>
-                            <CloseButton onClick={onClose} size="sm" />
+                            <CloseButton onClick={handleCloseModal} size="sm" />
                         </Dialog.CloseTrigger>
+                    </Dialog.Content>
+                </Dialog.Positioner>
+            </Dialog.Root>
+            <Dialog.Root open={isAlertOpen} size={'md'}>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                    <Dialog.Content>
+                        <Dialog.Header>
+                            <Dialog.Title>Excluir Avaliação</Dialog.Title>
+                        </Dialog.Header>
+                        <Dialog.Body>
+                            Você tem certeza? Esta ação não pode ser desfeita.
+                        </Dialog.Body>
+                        <Dialog.CloseTrigger asChild>
+                            <CloseButton onClick={handleCloseAlert} size="sm" />
+                        </Dialog.CloseTrigger>
+                        <Dialog.Footer>
+                            <Button onClick={handleCloseAlert}>
+                                Cancelar
+                            </Button>
+                            <Button onClick={confirmDelete} bgColor="red">
+                                Excluir
+                            </Button>
+                        </Dialog.Footer>
                     </Dialog.Content>
                 </Dialog.Positioner>
             </Dialog.Root>

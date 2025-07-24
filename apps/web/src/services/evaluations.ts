@@ -41,3 +41,20 @@ export async function createEvaluation(data: CreateEvaluationData): Promise<Eval
     const response = await api.post('/evaluations', data);
     return response.data;
 }
+
+export interface UpdateEvaluationData {
+  evaluationId: string;
+  data: {
+    peso?: number;
+    altura?: number;
+  };
+}
+
+export async function updateEvaluation({ evaluationId, data }: UpdateEvaluationData): Promise<Evaluation> {
+  const response = await api.put(`/evaluations/${evaluationId}`, data);
+  return response.data;
+}
+
+export async function deleteEvaluation(evaluationId: string): Promise<void> {
+  await api.delete(`/evaluations/${evaluationId}`);
+}

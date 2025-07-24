@@ -16,12 +16,12 @@ const createUserSchema = z.object({
 });
 
 const updateUserSchema = z.object({
-  nome: z.string().min(3, 'O nome deve ter no mínimo 3 caracteres.'),
-  usuario: z.string().min(3, 'O usuário deve ter no mínimo 3 caracteres.'),
-  senha: z.string().min(6, 'A senha deve ter 6+ caracteres.').or(z.literal('')).optional(),
-  perfil: z.enum(['admin', 'professor', 'aluno'], {
-    error: 'Selecione um perfil.',
-  }),
+    nome: z.string().min(3, 'O nome deve ter no mínimo 3 caracteres.'),
+    usuario: z.string().min(3, 'O usuário deve ter no mínimo 3 caracteres.'),
+    senha: z.string().min(6, 'A senha deve ter 6+ caracteres.').or(z.literal('')).optional(),
+    perfil: z.enum(['admin', 'professor', 'aluno'], {
+        error: 'Selecione um perfil.',
+    }),
 });
 
 interface UserFormProps {

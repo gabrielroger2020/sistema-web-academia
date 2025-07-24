@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button, Input, Select, Stack, Portal, createListCollection } from '@chakra-ui/react';
 import { FormControl, FormErrorMessage, FormLabel } from '@chakra-ui/form-control'
-import { CreateEvaluationData } from '@/services/evaluations';
+import { CreateEvaluationData, Evaluation } from '@/services/evaluations';
 import { getUsers, User } from '@/services/users';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
@@ -17,9 +17,11 @@ const evaluationFormSchema = z.object({
 interface EvaluationFormProps {
     onSubmit: (data: CreateEvaluationData) => void;
     isSubmitting: boolean;
+    defaultValues?: Evaluation;
+    isEditMode: boolean;
 }
 
-export function EvaluationForm({ onSubmit, isSubmitting }: EvaluationFormProps) {
+export function EvaluationForm({ onSubmit, isSubmitting, defaultValues, isEditMode }: EvaluationFormProps) {
     const { data: users, isLoading: isLoadingUsers } = useQuery({
         queryKey: ['allUsersForSelect'],
         queryFn: getUsers,
@@ -35,6 +37,11 @@ export function EvaluationForm({ onSubmit, isSubmitting }: EvaluationFormProps) 
 
     const { register, control, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(evaluationFormSchema),
+        defaultValues: {
+            idUsuarioAluno: defaultValues?.aluno.id || '',
+            peso: defaultValues?.peso || '',
+            altura: defaultValues?.altura || ''
+        }
     });
 
     return (
@@ -53,6 +60,7 @@ export function EvaluationForm({ onSubmit, isSubmitting }: EvaluationFormProps) 
                             onBlur={field.onBlur}
                             ref={field.ref}
                             disabled={isLoadingUsers}
+                            readOnly={isEditMode}
                         >
                             <Select.Control>
                                 <Select.Trigger>

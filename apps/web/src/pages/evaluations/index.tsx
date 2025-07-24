@@ -287,6 +287,10 @@ export default function EvaluationsPage() {
                                             >
                                                 <FiEdit />
                                             </IconButton>
+                                        </>
+                                    )}
+                                    {(user?.perfil === 'admin') && (
+                                        <>
                                             <IconButton
                                                 aria-label="Excluir avaliação"
                                                 size="sm"

@@ -203,7 +203,7 @@ export default function UserManagementPage() {
                             <UserForm onSubmit={onSubmitForm} isSubmitting={isCreatingUser || isUpdatingUser} defaultValues={selectedUser ?? undefined} isEditMode={!!selectedUser}></UserForm>
                         </Dialog.Body>
                         <Dialog.CloseTrigger asChild>
-                            <CloseButton onClick={onClose} size="sm" />
+                            <CloseButton onClick={handleCloseModal} size="sm" />
                         </Dialog.CloseTrigger>
                     </Dialog.Content>
                 </Dialog.Positioner>

@@ -22,16 +22,16 @@ export class UpdateEvaluationService {
       throw new Error('Avaliação não encontrada.');
     }
 
-    // Regra: Professor só pode editar a própria avaliação. Admin pode editar qualquer uma.
+    // Rule: Teachers can only edit their own assessment. Admins can edit any assessment.
     if (requestingUser.perfil === 'professor' && evaluation.idUsuarioAvaliacao !== requestingUser.id) {
       throw new Error('Acesso negado. Você não tem permissão para editar esta avaliação.');
     }
 
-    // Atualiza os valores se forem fornecidos
+    // Updates values if provided
     evaluation.peso = peso ?? evaluation.peso;
     evaluation.altura = altura ?? evaluation.altura;
 
-    // Recalcula o IMC se peso ou altura mudaram
+    // Recalculates BMI if weight or height has changed
     if (peso || altura) {
       const { imc, classificacao } = calculateIMC(evaluation.peso, evaluation.altura);
       evaluation.imc = imc;

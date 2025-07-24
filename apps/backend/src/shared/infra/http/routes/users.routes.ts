@@ -22,12 +22,12 @@ usersRouter.post(
   ensureAdminOrProfessor
 );
 
-// --- ROTAS PROTEGIDAS PARA ADMIN ---
+// --- PROTECTED ROUTES FOR ADMIN ---
 
-// Listar todos os usuários
+// List all users
 usersRouter.get('/', isAuthenticated, ensureAdminOrProfessor, usersController.list);
 
-// Ativar/Inativar um usuário
+// Activate/Inactivate a user
 usersRouter.patch(
   '/:id/status',
   celebrate({
@@ -39,7 +39,7 @@ usersRouter.patch(
   usersController.updateStatus,
 );
 
-// Editar um usuário
+// Edit a user
 usersRouter.put(
   '/:id',
   celebrate({
@@ -50,7 +50,7 @@ usersRouter.put(
       nome: Joi.string(),
       usuario: Joi.string(),
       perfil: Joi.string().valid('admin', 'professor', 'aluno'),
-      senha: Joi.string().min(6).optional(), // Senha é opcional na edição
+      senha: Joi.string().min(6).optional(), // Password is optional when editing
     },
   }),
   isAuthenticated,
@@ -58,7 +58,7 @@ usersRouter.put(
   usersController.update,
 );
 
-// Deletar um usuário
+// Delete a user
 usersRouter.delete(
   '/:id',
   celebrate({

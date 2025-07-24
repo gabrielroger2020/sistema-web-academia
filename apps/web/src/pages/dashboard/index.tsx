@@ -8,14 +8,14 @@ export default function DashboardPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // Guardião de Autenticação
+  // Authentication Guardian
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/');
     }
   }, [isAuthenticated, router]);
 
-  // Se não for autenticado, não renderiza nada para evitar piscar de tela
+  // If not authenticated, it does not render anything to avoid screen flickering
   if (!isAuthenticated) {
     return null;
   }

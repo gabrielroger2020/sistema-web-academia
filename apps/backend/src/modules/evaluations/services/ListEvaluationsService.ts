@@ -37,10 +37,10 @@ export class ListEvaluationsService {
       
       case 'professor':
 
-        // Professor pode ver as avaliações que ele mesmo cadastrou.
+        // Teacher can see the evaluations that he himself registered.
         query.andWhere('avaliacao.idUsuarioAvaliacao = :professorId', { professorId: requestingUser.id });
 
-        // E pode filtrar por um aluno específico dentro das suas avaliações.
+        // And you can filter by a specific student within your assessments.
         if (filter?.alunoId) {
             query.andWhere('avaliacao.idUsuarioAluno = :alunoId', { alunoId: filter.alunoId });
         }
@@ -48,7 +48,7 @@ export class ListEvaluationsService {
 
       case 'aluno':
 
-        // Aluno só pode ver suas próprias avaliações.
+        // Student can only see their own evaluations.
         query.andWhere('avaliacao.idUsuarioAluno = :alunoId', { alunoId: requestingUser.id });
         break;
     }

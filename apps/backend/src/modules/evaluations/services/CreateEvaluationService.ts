@@ -20,13 +20,13 @@ export class CreateEvaluationService {
     const usersRepository = AppDataSource.getRepository(Usuario);
     const evaluationsRepository = AppDataSource.getRepository(AvaliacaoImc);
 
-    // Valida se o aluno existe e está ativo
+    // Validates if the student exists and is active
     const aluno = await usersRepository.findOneBy({ id: idUsuarioAluno, situacao: 'ativo' });
     if (!aluno || aluno.perfil !== 'aluno') {
       throw new Error('Aluno não encontrado ou inativo.');
     }
     
-    // Regra de negócio: usuários inativos não podem ter novas avaliações
+    // Business rule: Inactive users cannot have new reviews
     if(aluno.situacao === 'inativo') {
         throw new Error('Não é possível cadastrar avaliação para um aluno inativo.');
     }

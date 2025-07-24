@@ -13,7 +13,7 @@ interface AuthContextData {
   user: User | null;
   isAuthenticated: boolean;
   signIn: (credentials: any) => Promise<void>;
-  signOut: () => void; // Adicionar signOut
+  signOut: () => void; // Add signOut
 }
 
 interface AuthProviderProps {
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     if (loading) {
-    return null; // ou um spinner de tela cheia
+      return null;
     }
 
   return (

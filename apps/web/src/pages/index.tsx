@@ -14,7 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
-// Schema de validação com Zod
+// Schema validation with Zod
 const loginFormSchema = z.object({
   usuario: z.string().min(1, 'O nome de usuário é obrigatório.'),
   senha: z.string().min(1, 'A senha é obrigatória.'),

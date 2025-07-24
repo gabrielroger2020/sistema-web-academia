@@ -6,7 +6,7 @@ export function ensureAdminOrProfessor(
   next: NextFunction,
 ) {
 
-  // Esta verificação assume que o middleware isAuthenticated já rodou
+  // This check assumes that the isAuthenticated middleware has already run.
   
   const { perfil } = request.user;
 

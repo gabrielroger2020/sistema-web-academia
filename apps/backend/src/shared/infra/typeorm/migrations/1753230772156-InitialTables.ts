@@ -18,7 +18,7 @@ export class InitialTables1753230772156 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "avaliacao_imc"`);
         await queryRunner.query(`ALTER TABLE "temporary_avaliacao_imc" RENAME TO "avaliacao_imc"`);
         
-        //Criando o primeiro usuário admin do sistema
+        // Creating the first system admin user
         const adminId = uuidV4();
         const passwordHash = await hash('admin123', 8);
         await queryRunner.query(

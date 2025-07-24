@@ -1,110 +1,110 @@
-# Sistema de Acompanhamento de IMC - Teste Sooro by the Whey
+# BMI Tracking System - Sooro by the Whey Test
 
-Este é um projeto Full Stack desenvolvido como parte do teste técnico para Desenvolvedor Full Stack. O sistema web foi criado para uma academia que precisa acompanhar a evolução do Índice de Massa Corporal (IMC) de seus alunos, permitindo o cadastro de usuários (administradores, professores e alunos) e o registro de suas avaliações.
+This is a Full Stack project developed as part of a technical test for a Full Stack Developer position. The web system was created for a gym that needs to track the Body Mass Index (BMI) evolution of its students, allowing the registration of users (administrators, professors, and students) and their evaluations.
 
-## Funcionalidades Principais
+## Main Features
 
-  - **Cadastro de Usuários**: O sistema permite o cadastro de usuários com três perfis distintos: Administrador, Professor e Aluno.
-  - **Autenticação JWT**: Fluxo de autenticação completo com usuário e senha, utilizando JSON Web Token (JWT) para proteger as rotas da API.
-  - **Gerenciamento de Usuários (Admin)**:
-      - Administradores podem criar, editar e excluir outros usuários.
-      - Permite ativar ou inativar usuários, controlando seu acesso ao sistema.
-  - **Gerenciamento de Avaliações de IMC**:
-      - Professores e Administradores podem cadastrar, editar e excluir avaliações de IMC para os alunos.
-      - O IMC e sua classificação são calculados e armazenados automaticamente com base na altura e peso fornecidos.
-  - **Sistema de Permissões (Regras de Negócio)**:
-      - **Administrador**: Acesso total ao sistema, podendo visualizar e gerenciar todos os dados.
-      - **Professor**: Gerencia apenas os alunos e as avaliações que ele mesmo criou.
-      - **Aluno**: Acesso de somente leitura às suas próprias avaliações.
-  - **Filtros de Consulta**: A tela de avaliações permite a filtragem por aluno ou professor.
+  - **User Registration**: The system allows user registration with three distinct profiles: Administrator, Professor, and Student.
+  - **JWT Authentication**: A complete authentication flow with username and password, using JSON Web Token (JWT) to protect the API routes.
+  - **User Management (Admin)**:
+      - Administrators can create, edit, and delete other users.
+      - Allows activating or deactivating users, controlling their access to the system.
+  - **BMI Evaluation Management**:
+      - Professors and Administrators can register, edit, and delete BMI evaluations for students.
+      - The BMI and its classification are calculated and stored automatically based on the provided height and weight.
+  - **Permission System (Business Rules)**:
+      - **Administrator**: Full access to the system, able to view and manage all data.
+      - **Professor**: Manages only the students and evaluations they have created.
+      - **Student**: Read-only access to their own evaluations.
+  - **Query Filters**: The evaluations screen allows filtering by student or professor.
 
-## Tecnologias Utilizadas
+## Technologies Used
 
-O projeto foi construído seguindo a estrutura de monorepo, com o versionamento seguindo o padrão de Conventional Commits.
+The project was built following a monorepo structure, with version control adhering to the Conventional Commits standard.
 
 ### Backend
 
   - **TypeScript**
-  - **Node.js** com **Express.js**
-  - **TypeORM** para o ORM e gerenciamento de Migrations
-  - **SQLite** como banco de dados
-  - **Zod** para validação de dados nos endpoints
-  - **JSON Web Token (JWT)** para autenticação
-  - **CORS** para permitir a comunicação com o frontend
+  - **Node.js** with **Express.js**
+  - **TypeORM** for the ORM and Migrations management
+  - **SQLite** as the database
+  - **Zod** for data validation on endpoints
+  - **JSON Web Token (JWT)** for authentication
+  - **CORS** to allow communication with the frontend
 
 ### Frontend
 
   - **TypeScript**
-  - **React** com **Next.js**
-  - **Chakra UI** para a biblioteca de componentes
-  - **TanStack Query (React Query)** para gerenciamento de estado assíncrono e cache
-  - **React Hook Form** para construção de formulários
-  - **Zod** para validação de schemas de formulário
-  - **Axios** para as requisições à API
+  - **React** with **Next.js**
+  - **Chakra UI** for the component library
+  - **TanStack Query (React Query)** for asynchronous state management and caching
+  - **React Hook Form** for building forms
+  - **Zod** for form schema validation
+  - **Axios** for API requests
 
-## Como Executar o Projeto
+## How to Run the Project
 
-### Pré-requisitos
+### Prerequisites
 
-  - Node.js (v18 ou superior)
-  - NPM ou Yarn
+  - Node.js (v18 or higher)
+  - NPM or Yarn
 
 ### 1\. Backend
 
-Primeiro, configure e execute o servidor do backend.
+First, set up and run the backend server.
 
 ```bash
-# 1. Navegue até a pasta do backend
+# 1. Navigate to the backend folder
 cd backend
 
-# 2. Instale as dependências
+# 2. Install dependencies
 npm install
 
-# 3. Rode as Migrations
-# (Veja a seção abaixo para mais detalhes)
+# 3. Run the Migrations
+# (See the section below for more details)
 npm run typeorm -- -d src/shared/infra/typeorm/index.ts migration:run
 
-# 4. Inicie o servidor em modo de desenvolvimento
+# 4. Start the server in development mode
 npm run dev
 
-# O servidor estará rodando em http://localhost:3333
+# The server will be running at http://localhost:3333
 ```
 
 ### 2\. Frontend
 
-Em um novo terminal, configure e execute a aplicação frontend.
+In a new terminal, set up and run the frontend application.
 
 ```bash
-# 1. Navegue até a pasta do frontend
+# 1. Navigate to the frontend folder
 cd web
 
-# 2. Instale as dependências
+# 2. Install dependencies
 npm install
 
-# 3. Inicie a aplicação
+# 3. Start the application
 npm run dev
 
-# A aplicação estará disponível em http://localhost:3000
+# The application will be available at http://localhost:3000
 ```
 
-## Banco de Dados e Migrations
+## Database and Migrations
 
-O projeto utiliza **SQLite**, então nenhuma configuração adicional de servidor de banco de dados é necessária. O arquivo `database.sqlite` será criado automaticamente na raiz da pasta `backend` na primeira vez que as migrations forem executadas.
+The project uses **SQLite**, so no additional database server configuration is required. The `database.sqlite` file will be created automatically in the root of the `backend` folder the first time the migrations are run.
 
-  - **Onde estão localizadas as migrations?**
-    Os arquivos de migration do TypeORM, que definem a estrutura do banco de dados, estão localizados em:
+  - **Where are the migrations located?**
+    The TypeORM migration files, which define the database structure, are located at:
     `backend/src/shared/infra/typeorm/migrations`
 
-  - **Como rodar as migrations?**
-    Para criar as tabelas e popular o banco de dados com os dados iniciais, execute o seguinte comando na pasta `backend`:
+  - **How to run the migrations?**
+    To create the tables and populate the database with initial data, execute the following command in the `backend` folder:
 
     ```bash
     npm run typeorm -- -d src/shared/infra/typeorm/index.ts migration:run
     ```
 
-## Credenciais de Acesso Inicial
+## Initial Access Credentials
 
-A primeira migration do sistema cria automaticamente um usuário **Administrador** para permitir o primeiro acesso ao sistema.
+The system's first migration automatically creates an **Administrator** user to allow initial access to the system.
 
-  - **Usuário**: `admin`
-  - **Senha**: `admin123`
+  - **Username**: `admin`
+  - **Password**: `admin123`

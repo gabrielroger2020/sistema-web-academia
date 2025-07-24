@@ -8,7 +8,7 @@ export class EvaluationsController {
   public async create(request: Request, response: Response): Promise<Response> {
     const { idUsuarioAluno, peso, altura } = request.body;
 
-    // O ID do avaliador vem do usuário autenticado no token
+    // The reviewer ID comes from the authenticated user in the token
     
     const idUsuarioAvaliacao = request.user.id;
 

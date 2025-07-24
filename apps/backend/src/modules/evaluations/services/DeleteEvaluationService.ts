@@ -19,7 +19,7 @@ export class DeleteEvaluationService {
       throw new Error('Avaliação não encontrada.');
     }
 
-    // Regra: Professor só pode excluir a própria avaliação. Admin pode excluir qualquer uma.
+    // Rule: Teachers can only delete their own assessment. Admins can delete any assessment.
     if (requestingUser.perfil === 'professor' && evaluation.idUsuarioAvaliacao !== requestingUser.id) {
       throw new Error('Acesso negado. Você não tem permissão para excluir esta avaliação.');
     }

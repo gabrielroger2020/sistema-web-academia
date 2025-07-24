@@ -16,6 +16,11 @@ export interface CreateUserData {
     perfil: 'admin' | 'professor' | 'aluno';
 }
 
+interface UpdateUserStatusData {
+  userId: string;
+  status: 'ativo' | 'inativo';
+}
+
 export async function getUsers(): Promise<User[]> {
     const response = await api.get('/users');
     return response.data;
@@ -24,4 +29,9 @@ export async function getUsers(): Promise<User[]> {
 export async function createUser(data: CreateUserData): Promise<User> {
     const response = await api.post('/users', data);
     return response.data;
+}
+
+export async function updateUserStatus({ userId, status }: UpdateUserStatusData): Promise<User> {
+  const response = await api.patch(`/users/${userId}/status`, { situacao: status });
+  return response.data;
 }

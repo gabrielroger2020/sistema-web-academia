@@ -12,11 +12,14 @@ import {
     Badge,
     Dialog,
     CloseButton,
-    useDisclosure
+    useDisclosure,
+    Switch,
+    IconButton
 } from '@chakra-ui/react';
 import { DashboardLayout } from '@/components/layout/Dashboard';
 import { useAuth } from '@/contexts/AuthContext';
-import { getUsers, User, createUser, CreateUserData } from '@/services/users';
+import { getUsers, User, createUser, CreateUserData, updateUserStatus } from '@/services/users';
+import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import { UserForm } from '@/components/forms/UserForm';
 import { toaster } from '@/components/ui/toaster';
 
@@ -39,8 +42,18 @@ export default function UserManagementPage() {
             onClose();
         },
         onError: (error: any) => {
-            console.log(error);
             toaster.create({ title: 'Erro ao criar usuário.', description: error.response?.data?.error || 'Ocorreu um erro.', type: 'error' });
+        },
+    });
+
+    const { mutate: handleUpdateStatus } = useMutation({
+        mutationFn: updateUserStatus,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            toaster.create({ title: 'Status do usuário atualizado!', type: 'success' });
+        },
+        onError: () => {
+            toaster.create({ title: 'Erro ao atualizar status.', type: 'error' });
         },
     });
 
@@ -93,9 +106,16 @@ export default function UserManagementPage() {
                                 <Table.Cell>{user.usuario}</Table.Cell>
                                 <Table.Cell>{user.perfil}</Table.Cell>
                                 <Table.Cell>
-                                    <Badge colorScheme={user.situacao === 'ativo' ? 'green' : 'red'}>
-                                        {user.situacao}
-                                    </Badge>
+                                    <Switch.Root checked={user.situacao === "ativo"} onChange={(e) =>
+                                        handleUpdateStatus({
+                                            userId: user.id,
+                                            status: (e.target as HTMLInputElement).checked ? "ativo" : "inativo"
+                                        })
+                                    }>
+                                        <Switch.HiddenInput />
+                                        <Switch.Control>
+                                        </Switch.Control>
+                                    </Switch.Root>
                                 </Table.Cell>
                                 <Table.Cell></Table.Cell>
                             </Table.Row>

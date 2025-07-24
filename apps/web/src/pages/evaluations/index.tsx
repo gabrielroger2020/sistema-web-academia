@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     Box,
     Flex,
@@ -11,10 +11,15 @@ import {
     Text,
     Tag,
     Badge,
+    useDisclosure,
+    Dialog,
+    CloseButton,
 } from '@chakra-ui/react';
 import { DashboardLayout } from '@/components/layout/Dashboard';
 import { useAuth } from '@/contexts/AuthContext';
-import { getEvaluations, Evaluation } from '@/services/evaluations';
+import { getEvaluations, Evaluation, createEvaluation } from '@/services/evaluations';
+import { toaster } from '@/components/ui/toaster';
+import { EvaluationForm } from '@/components/forms/EvaluationForm';
 
 export default function EvaluationsPage() {
     const { user, isAuthenticated } = useAuth();
@@ -24,6 +29,24 @@ export default function EvaluationsPage() {
         queryFn: () => getEvaluations()
     });
 
+    const { open, onOpen, onClose } = useDisclosure();
+    const queryClient = useQueryClient();
+
+    const { mutate: handleCreateEvaluation, isPending: isCreating } = useMutation({
+        mutationFn: createEvaluation,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['evaluations'] });
+            toaster.create({ title: 'Avaliação criada com sucesso!', type: 'success' });
+            onClose();
+        },
+        onError: (error: any) => {
+            toaster.create({
+                title: 'Erro ao criar avaliação.',
+                description: error.response?.data?.message || 'Verifique os dados e tente novamente.',
+                type: 'error',
+            });
+        },
+    });
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -44,7 +67,7 @@ export default function EvaluationsPage() {
                     Minhas Avaliações
                 </Heading>
                 {(user?.perfil === 'admin' || user?.perfil === 'professor') && (
-                    <Button>Nova Avaliação</Button>
+                    <Button onClick={onOpen}>Nova Avaliação</Button>
                 )}
             </Flex>
 
@@ -87,6 +110,22 @@ export default function EvaluationsPage() {
                     </Table.Body>
                 </Table.Root>
             </Box>
+            <Dialog.Root open={open} size={'md'}>
+                <Dialog.Backdrop />
+                <Dialog.Positioner>
+                    <Dialog.Content>
+                        <Dialog.Header>
+                            <Dialog.Title>Cadastrar Avaliação</Dialog.Title>
+                        </Dialog.Header>
+                        <Dialog.Body>
+                            <EvaluationForm onSubmit={handleCreateEvaluation} isSubmitting={isCreating}></EvaluationForm>
+                        </Dialog.Body>
+                        <Dialog.CloseTrigger asChild>
+                            <CloseButton onClick={onClose} size="sm" />
+                        </Dialog.CloseTrigger>
+                    </Dialog.Content>
+                </Dialog.Positioner>
+            </Dialog.Root>
         </DashboardLayout>
     );
 }
